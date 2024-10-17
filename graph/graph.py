@@ -3,7 +3,7 @@ import sys
 sys.path.append("/Users/canan/Library/CloudStorage/OneDrive-Kişisel/chatbot6_1_backend/chatbots/agentic_chat/")
 
 from langgraph.graph import END, StateGraph
-
+from langgraph.checkpoint.memory import MemorySaver
 from graph.chains.answer_grader import answer_grader
 from graph.chains.hallucination_grader import hallucination_grader
 from graph.chains.router import question_router, RouteQuery
@@ -19,6 +19,8 @@ from graph.nodes.retrieve import retrieve
 from graph.state import GraphState
 
 load_dotenv()
+
+memory = MemorySaver()
 
 
 def decide_to_generate(state):
@@ -107,6 +109,6 @@ workflow.add_conditional_edges(
 workflow.add_edge(WEBSEARCH, GENERATE)
 workflow.add_edge(GENERATE, END)
 
-app = workflow.compile()
+app = workflow.compile(checkpointer=memory)
 
 app.get_graph().draw_mermaid_png(output_file_path="graph.png")
